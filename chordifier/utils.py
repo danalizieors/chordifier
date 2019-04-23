@@ -1,19 +1,23 @@
 import numpy as np
 
+
+def vector(x, y):
+    return np.array([x, y])
+
+
 CUBE_COORDINATE_DIRECTIONS = [
-    (-1, +1),
-    (0, +1),
-    (+1, 0),
-    (+1, -1),
-    (0, -1),
-    (-1, 0),
+    vector(-1, +1),
+    vector(0, +1),
+    vector(+1, 0),
+    vector(+1, -1),
+    vector(0, -1),
+    vector(-1, 0),
 ]
 
 
 def hexagon_ring(radius, right=False):
-    start = np.array((0, -radius))
-    directions = np.array(CUBE_COORDINATE_DIRECTIONS)
-    ring = walk(start, directions, radius)
+    start = vector(0, -radius)
+    ring = walk(start, CUBE_COORDINATE_DIRECTIONS, radius)
 
     if right:
         return ring[0:1] + ring[:0:-1]
@@ -43,4 +47,4 @@ def mirror(coordinates):
 
 def mirror_coordinate(coordinate):
     q, r = coordinate
-    return np.array((-q, q + r))
+    return vector(-q, q + r)
