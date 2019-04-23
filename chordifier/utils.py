@@ -31,3 +31,16 @@ def walk(start, directions, steps_in_each_direction):
             current = current + direction
 
     return steps
+
+
+def translate(position, coordinates):
+    return [position + coordinate for coordinate in coordinates]
+
+
+def mirror(coordinates):
+    return [mirror_coordinate(coordinate) for coordinate in coordinates]
+
+
+def mirror_coordinate(coordinate):
+    q, r = coordinate
+    return np.array((-q, q + r))
