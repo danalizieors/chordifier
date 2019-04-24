@@ -16,9 +16,9 @@ def generate_keys(zone: dict, level: int, right: bool):
     translated_keys = position + keys
 
     if right:
-        return mirror(translated_keys)
-    else:
         return translated_keys
+    else:
+        return mirror(translated_keys)
 
 
 def define_keys(zone: dict, level: int):
@@ -33,4 +33,5 @@ def mirror(coordinates):
     inverted_x = np.array([-1, 1]) * coordinates
     zeroed_y = np.array([1, 0]) * coordinates
     x_to_y = np.roll(zeroed_y, 1, 1)
+
     return inverted_x + x_to_y
