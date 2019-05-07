@@ -25,6 +25,12 @@ class Ngram:
 
         return copy
 
+    def symbols(self, depth):
+        symbols = [symbol for character in self.characters
+                   for symbol in yield_symbols(character, depth)]
+
+        return sorted(symbols, key=lambda t: t[1], reverse=True)
+
     @staticmethod
     def parse(json):
         characters = Character.parse_list(json)
@@ -59,9 +65,22 @@ class Character:
                 if item[0] != '~~']
 
 
-def limit(instance, depth):
-    if depth == 0:
-        instance.characters = []
+def yield_symbols(character, depth):
+    return yield_symbols1(character, depth, [])
+
+
+def yield_symbols1(character, depth, symbols):
+    with_added_symbol = symbols + [character.symbol]
+    if depth == 1:
+        yield (with_added_symbol, character.occurrences)
     else:
-        for character in instance.characters:
+        for character in character.characters:
+            yield from yield_symbols1(character, depth - 1, with_added_symbol)
+
+
+def limit(character, depth):
+    if depth == 0:
+        character.characters = []
+    else:
+        for character in character.characters:
             limit(character, depth - 1)
