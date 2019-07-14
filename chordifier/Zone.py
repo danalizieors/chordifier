@@ -10,21 +10,20 @@ class Zone:
         self.keys = generate_keys(ZONES[name], level, right)
 
 
-def generate_keys(zone: dict, level: int, right: bool):
-    position = zone['position']
-    keys = define_keys(zone, level)
+def generate_keys(zone_description: dict, level: int, right: bool):
+    if level is None:
+        return np.empty((0, 2))
+
+    position = zone_description['position']
+    keys = define_keys(zone_description, level)
     translated_keys = position + keys
 
-    if right:
-        return translated_keys
-    else:
-        return mirror(translated_keys)
+    return translated_keys if right else mirror(translated_keys)
 
 
-def define_keys(zone: dict, level: int):
-    origin = np.array([0, 0])
-    possible_keys = zone['keys']
-    keys_for_level = [[origin]] + possible_keys[0:level]
+def define_keys(zone_description: dict, level: int):
+    possible_keys = zone_description['keys']
+    keys_for_level = possible_keys[0:level]
 
     return np.concatenate(keys_for_level)
 
