@@ -1,3 +1,4 @@
+import bokeh.util.hex as b
 import numpy as np
 
 
@@ -35,3 +36,8 @@ def walk(start, directions, steps_in_each_direction):
             current = current + direction
 
     return np.array(steps)
+
+
+def axial_to_cartesian(vector):
+    cartesian = b.axial_to_cartesian(vector[0], vector[1], 1, "flattop")
+    return np.array(cartesian)

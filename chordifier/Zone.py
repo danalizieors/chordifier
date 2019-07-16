@@ -11,7 +11,7 @@ class Zone:
 
 
 def generate_keys(zone_description: dict, level: int, right: bool):
-    if level is None:
+    if level is 0:
         return np.empty((0, 2))
 
     position = zone_description['position']
