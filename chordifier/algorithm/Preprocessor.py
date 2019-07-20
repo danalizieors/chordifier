@@ -46,6 +46,6 @@ def define_origins(zones):
 
 
 def cartesian_product(lists):
-    grid = np.meshgrid(*lists)
+    grid = np.meshgrid(*lists, indexing='ij')
     stacked = np.stack(grid, -1)
     return stacked.reshape(-1, len(lists))
