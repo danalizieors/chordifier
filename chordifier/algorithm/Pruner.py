@@ -7,7 +7,8 @@ from chordifier.algorithm.Preprocessor import Preprocessor
 class Pruner:
     def __init__(self, keyboard: Keyboard, parameters, prune=None):
         preprocessor = Preprocessor(keyboard)
-        ranks = rank_chords(preprocessor, parameters)
+        self.scores = score_chords(preprocessor, parameters)
+        ranks = rank_chords(self.scores)
 
         self.zones = preprocessor.zones
         self.chords = preprocessor.chords[ranks][0:prune]
@@ -15,7 +16,12 @@ class Pruner:
         self.origins = preprocessor.origins
 
 
-def rank_chords(preprocessor, parameters):
+def rank_chords(scores):
+    summed = np.sum(scores, axis=-1)
+    return summed.argsort()
+
+
+def score_chords(preprocessor, parameters):
     scores = np.array([
         finger_priorities(preprocessor.chords,
                           parameters['priority']),
@@ -32,10 +38,7 @@ def rank_chords(preprocessor, parameters):
         parameters['distances_between_positions'],
     ])
 
-    weighted_scores = scores * weights
-    summed = np.sum(weighted_scores, axis=-1)
-
-    return summed.argsort()
+    return scores * weights
 
 
 def finger_priorities(chords, priority):
