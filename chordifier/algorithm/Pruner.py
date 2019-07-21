@@ -33,19 +33,18 @@ def rank_chords(preprocessor, parameters):
     ])
 
     weighted_scores = scores * weights
-    scored = np.sum(weighted_scores, axis=-1)
+    summed = np.sum(weighted_scores, axis=-1)
 
-    return scored.argsort()
+    return summed.argsort()
 
 
 def finger_priorities(chords, priority):
     weighted = chords * priority + chords
+
     summed = np.sum(weighted, axis=-1)
+    maximum = np.max(summed)
 
-    indices = summed.argsort()
-    maximum = chords.shape[0] - 1
-
-    return indices / maximum
+    return summed / maximum
 
 
 def average_distances_from_origins(positions, origins, x_y_ratio, stiffness):
@@ -56,10 +55,10 @@ def average_distances_from_origins(positions, origins, x_y_ratio, stiffness):
     distances = np.linalg.norm(weighted_offsets, axis=-1)
     weighted_distances = distances * stiffness
 
-    mean = np.nanmean(weighted_distances, axis=-1)
-    maximum = np.max(mean)
+    means = np.nanmean(weighted_distances, axis=-1)
+    maximum = np.nanmax(means)
 
-    return mean / maximum
+    return means / maximum if maximum != 0 else means
 
 
 def distances_between_positions(positions):
