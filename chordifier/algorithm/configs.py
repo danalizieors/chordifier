@@ -11,6 +11,6 @@ PARAMETERS = {
     'x_y_ratio': 1.5,
     'stiffness': np.hstack([STIFFNESS, STIFFNESS[::-1]]),
     'finger_priorities': 1,
-    'average_distances_from_origins': 1,
-    'distances_between_positions': 1,
+    'average_offsets': 1,
+    'deviation_of_offsets': 1,
 }
