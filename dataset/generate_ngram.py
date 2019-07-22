@@ -36,8 +36,9 @@ def read_and_next(size, file):
 
 def add(ngram, sequence):
     for character in sequence:
-        create_or_increment_entry(ngram, character)
-        ngram = ngram[character]
+        lower = character.lower()
+        create_or_increment_entry(ngram, lower)
+        ngram = ngram[lower]
 
 
 def create_or_increment_entry(ngram, character):
