@@ -1,20 +1,28 @@
 import numpy as np
+from copy import deepcopy
 
-from chordifier.Keyboard import Keyboard
 from chordifier.algorithm.Preprocessor import Preprocessor
 
 
 class Pruner:
-    def __init__(self, keyboard: Keyboard, parameters, prune=None):
-        preprocessor = Preprocessor(keyboard)
+    def __init__(self, preprocessor: Preprocessor, parameters):
         scores = score_chords(preprocessor, parameters)
         ranks = rank_chords(scores)
 
         self.zones = preprocessor.zones
-        self.chords = preprocessor.chords[ranks][0:prune]
-        self.positions = preprocessor.positions[ranks][0:prune]
+        self.chords = preprocessor.chords[ranks]
+        self.positions = preprocessor.positions[ranks]
         self.origins = preprocessor.origins
-        self.scores = scores[ranks][0:prune]
+        self.scores = scores[ranks]
+
+    def __getitem__(self, key):
+        copy = deepcopy(self)
+
+        copy.chords = copy.chords[key]
+        copy.positions = copy.positions[key]
+        copy.scores = copy.scores[key]
+
+        return copy
 
 
 def rank_chords(scores):

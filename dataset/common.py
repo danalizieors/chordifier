@@ -1,5 +1,7 @@
 import json
 
+from dataset.Ngram import Ngram
+
 
 def read_json(filename):
     with open(filename, encoding="utf-8") as file:
@@ -13,3 +15,8 @@ def write_json(data, filename, pretty=True, sort=True):
         else:
             json.dump(data, file, ensure_ascii=False, sort_keys=sort,
                       separators=(',', ':'))
+
+
+def read_ngram(filename):
+    data = read_json(filename)
+    return Ngram.parse(data)
