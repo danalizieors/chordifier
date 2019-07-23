@@ -25,7 +25,8 @@ class Pipeline:
     def prepare_data(self):
         self.sequencer = Sequencer(self.parameters['filename'],
                                    self.parameters['characters'],
-                                   self.parameters['length'])
+                                   self.parameters['length'],
+                                   self.parameters['number'])
 
     def prepare_keyboard(self):
         self.keyboard = Keyboard(self.parameters['keyboard'])

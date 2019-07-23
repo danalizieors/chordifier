@@ -1,4 +1,5 @@
 import numpy as np
+
 from chordifier.algorithm.Pipeline import Pipeline
 from chordifier.utils import vector
 
@@ -12,6 +13,7 @@ PARAMETERS = {
     # sequencer
     'filename': "dataset/ngram.json",
     'length': 3,
+    'number': 20,
 
     # dynamics
     'x_y_ratio': 1.5,
