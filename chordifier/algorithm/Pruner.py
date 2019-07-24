@@ -24,6 +24,14 @@ class Pruner:
 
         return copy
 
+    def apply_ratio(self, x_y_ratio):
+        copy = deepcopy(self)
+
+        copy.positions = copy.positions * x_y_ratio
+        copy.origins = copy.origins * x_y_ratio
+
+        return copy
+
 
 def rank_chords(scores):
     summed = np.sum(scores, axis=-1)
