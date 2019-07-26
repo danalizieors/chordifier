@@ -28,7 +28,7 @@ class Evaluator:
         weighted_scores = scores * weights
         total = np.sum(weighted_scores)
 
-        return total
+        return total,
 
     def generate_chord_position_sequences(self, permutation):
         chords = self.generate_sequences(permutation,

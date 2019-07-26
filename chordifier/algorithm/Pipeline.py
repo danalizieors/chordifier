@@ -1,5 +1,6 @@
 from chordifier.Keyboard import Keyboard
 from chordifier.algorithm.Evaluator import Evaluator
+from chordifier.algorithm.Optimizer import Optimizer
 from chordifier.algorithm.Preprocessor import Preprocessor
 from chordifier.algorithm.Pruner import Pruner
 from chordifier.algorithm.Sequencer import Sequencer
@@ -15,14 +16,14 @@ class Pipeline:
         self.pruner_intact = None
         self.pruner = None
         self.evaluator = None
+        self.optimizer = None
 
     def prepare(self):
         self.prepare_data()
-        self.prepare_keyboard()
-        self.prepare_evaluator()
+        self.prepare_algorithm()
 
-    def evaluate(self, permutation):
-        return self.evaluator.evaluate(permutation)
+    def optimize(self):
+        return self.optimizer.optimize()
 
     def prepare_data(self):
         self.sequencer = Sequencer(self.parameters['filename'],
@@ -30,12 +31,20 @@ class Pipeline:
                                    self.parameters['length'],
                                    self.parameters['samples'])
 
+    def prepare_algorithm(self):
+        self.prepare_keyboard()
+        self.prepare_evaluator()
+        self.prepare_optimizer()
+
     def prepare_keyboard(self):
         self.keyboard = Keyboard(self.parameters['keyboard'])
         self.preprocessor = Preprocessor(self.keyboard)
         self.pruner_intact = Pruner(self.preprocessor, self.parameters)
-        skewed = self.pruner_intact.apply_ratio(self.parameters['x_y_ratio'])
-        self.pruner = skewed[0:self.parameters['characters']]
+        pruned = self.pruner_intact[0:self.parameters['characters']]
+        self.pruner = pruned.apply_ratio(self.parameters['x_y_ratio'])
 
     def prepare_evaluator(self):
         self.evaluator = Evaluator(self.sequencer, self.pruner, self.parameters)
+
+    def prepare_optimizer(self):
+        self.optimizer = Optimizer(self.evaluator, self.parameters)

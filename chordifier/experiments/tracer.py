@@ -29,6 +29,14 @@ PARAMETERS = {
     # evaluator
     'distances_travelled': 1,
     'chord_difficulties': 1,
+
+    # optimizer
+    'generations': 500,
+    'population_size': 100,
+    'mate_probability': 0.5,
+    'mutate_probability': 0.20,
+    'mutate_independent_probability': 0.10,
+    'select_tournament_size': 10,
 }
 
 pipeline = Pipeline(PARAMETERS)
@@ -37,6 +45,6 @@ permutation = np.arange(20)
 np.random.shuffle(permutation)
 
 pipeline.prepare()
-result = pipeline.evaluate(permutation)
+result = pipeline.optimize()
 
 print(result)
