@@ -73,6 +73,12 @@ class Evaluator:
 
         return difficulties
 
+    def retrieve_mapping(self, permutation):
+        permuted_chords = self.pruner.chords[permutation]
+        characters_chords = zip(self.sequencer.uniques, permuted_chords)
+
+        return {character: chord for character, chord in characters_chords}
+
 
 def determine_source_positions(chords, positions):
     without_last = chords[:, :-1]

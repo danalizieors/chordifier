@@ -51,10 +51,13 @@ class Optimizer:
 
     def optimize(self):
         population = self.toolbox.population(self.parameters['population_size'])
-        return algorithms.eaSimple(population,
-                                   self.toolbox,
-                                   self.parameters['mate_probability'],
-                                   self.parameters['mutate_probability'],
-                                   self.parameters['generations'],
-                                   self.stats,
-                                   self.winner)
+        algorithms.eaSimple(population,
+                            self.toolbox,
+                            self.parameters['mate_probability'],
+                            self.parameters['mutate_probability'],
+                            self.parameters['generations'],
+                            self.stats,
+                            self.winner)
+
+        permutation = self.winner.items[0]
+        return self.evaluator.retrieve_mapping(permutation)
