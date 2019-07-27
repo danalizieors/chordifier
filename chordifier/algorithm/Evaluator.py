@@ -26,7 +26,10 @@ class Evaluator:
         ])
 
         weighted_scores = scores * weights
-        total = np.sum(weighted_scores)
+        summed = np.sum(weighted_scores, axis=-1)
+
+        with_occurrences = summed * self.sequencer.occurrences
+        total = np.sum(with_occurrences)
 
         return total,
 
