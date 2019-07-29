@@ -1,6 +1,6 @@
 LINK=https://cdn.kernel.org/pub/linux/kernel/v5.x/linux-5.0.10.tar.xz
 
-all: download extract process clean
+all: download extract process generate clean
 
 download:
 	curl -o kernel.tar.xz ${LINK}
@@ -14,7 +14,9 @@ process:
 	| awk '{$$1=$$1};1' \
 	> source.dat
 
-	pipenv run python generate_ngram.py
+generate:
+	 export PYTHONPATH=.. && \
+	 pipenv run python generate_ngram.py
 
 clean:
 	rm -rf kernel.tar.xz kernel source.dat
