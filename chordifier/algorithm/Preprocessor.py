@@ -1,6 +1,6 @@
 import numpy as np
 
-from chordifier.Keyboard import Keyboard
+from chordifier.Models import Keyboard
 from chordifier.utils import axial_to_cartesian
 
 

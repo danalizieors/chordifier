@@ -1,7 +1,19 @@
 import numpy as np
 
-from chordifier.Keyboard import Keyboard
-from chordifier.configs import PALETTE
+from chordifier.Models import Keyboard
+
+PALETTE = [
+    '#c66900',
+    '#c79100',
+    '#5a9216',
+    '#087f23',
+    '#00675b',
+    '#008ba3',
+    '#0069c0',
+    '#002984',
+    '#320b86',
+    '#6a0080',
+]
 
 
 class KeyboardRenderer:

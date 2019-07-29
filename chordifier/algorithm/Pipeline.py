@@ -1,4 +1,3 @@
-from chordifier.Keyboard import Keyboard
 from chordifier.algorithm.Evaluator import Evaluator
 from chordifier.algorithm.Optimizer import Optimizer
 from chordifier.algorithm.Preprocessor import Preprocessor
@@ -10,8 +9,8 @@ class Pipeline:
     def __init__(self, parameters: dict):
         self.parameters = parameters
 
+        self.keyboard = parameters['keyboard']
         self.sequencer = None
-        self.keyboard = None
         self.preprocessor = None
         self.pruner_intact = None
         self.pruner = None
@@ -37,7 +36,6 @@ class Pipeline:
         self.prepare_optimizer()
 
     def prepare_keyboard(self):
-        self.keyboard = Keyboard(self.parameters['keyboard'])
         self.preprocessor = Preprocessor(self.keyboard)
         self.pruner_intact = Pruner(self.preprocessor, self.parameters)
         pruned = self.pruner_intact[0:self.parameters['characters']]

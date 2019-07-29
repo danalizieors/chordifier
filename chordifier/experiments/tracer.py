@@ -1,13 +1,14 @@
 import numpy as np
 
 from chordifier.algorithm.Pipeline import Pipeline
+from chordifier.experiments.KeyboardFactory import make
 from chordifier.utils import vector
 
 STIFFNESS = vector(1.8, 1.3, 1.2, 1.1, 2)
 
 PARAMETERS = {
     # general
-    'keyboard': [3] * 3 + [0] * 7,
+    'keyboard': make([3, 3, 3, 3, 2] + [0] * 5),
     'characters': 20,
 
     # sequencer
