@@ -7,6 +7,7 @@ services:
       - "8888:8888"
     volumes:
       - ./chordifier:/home/jovyan/work/chordifier
+      - ./dataset:/home/jovyan/work/dataset
       - ./lab:/home/jovyan/work/lab
     environment:
       - JUPYTER_ENABLE_LAB=yes
