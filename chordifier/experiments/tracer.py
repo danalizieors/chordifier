@@ -1,10 +1,6 @@
-import numpy as np
-
 from chordifier.algorithm.Pipeline import Pipeline
 from chordifier.experiments.KeyboardFactory import make
 from chordifier.utils import vector
-
-STIFFNESS = vector(1.8, 1.3, 1.2, 1.1, 2)
 
 PARAMETERS = {
     # general
@@ -18,7 +14,7 @@ PARAMETERS = {
 
     # dynamics
     'x_y_ratio': 1.5,
-    'stiffness': np.hstack([STIFFNESS, STIFFNESS[::-1]]),
+    'stiffness': vector(1.8, 1.3, 1.2, 1.1, 2, 2, 1.1, 1.2, 1.3, 1.8),
 
     # pruner
     'priority': vector(1800000, 1300000, 1200000, 1100000, 1450000,
@@ -32,6 +28,7 @@ PARAMETERS = {
     'chord_difficulties': 1,
 
     # optimizer
+    'best': True,
     'generations': 500,
     'population_size': 100,
     'mate_probability': 0.5,
@@ -41,9 +38,6 @@ PARAMETERS = {
 }
 
 pipeline = Pipeline(PARAMETERS)
-
-permutation = np.arange(20)
-np.random.shuffle(permutation)
 
 pipeline.prepare()
 result = pipeline.optimize()
