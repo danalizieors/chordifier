@@ -10,15 +10,15 @@ PARAMETERS = {
     # sequencer
     'filename': "dataset/ngram.json",
     'length': 3,
-    'samples': 20,
+    'samples': 500,
 
     # dynamics
     'x_y_ratio': 1.5,
     'stiffness': vector(1.8, 1.3, 1.2, 1.1, 2, 2, 1.1, 1.2, 1.3, 1.8),
 
     # pruner
-    'priority': vector(1800000, 1300000, 1200000, 1100000, 1450000,
-                       1451600, 1100800, 1200400, 1300200, 1800100),
+    'priority': vector(18000, 13000, 12000, 11000, 14500,
+                       14516, 11008, 12004, 13002, 18001),
     'finger_priorities': 1,
     'average_offsets': 0,
     'deviation_of_offsets': 0,
@@ -29,7 +29,7 @@ PARAMETERS = {
 
     # optimizer
     'best': True,
-    'generations': 500,
+    'generations': 5,
     'population_size': 100,
     'mate_probability': 0.5,
     'mutate_probability': 0.20,
