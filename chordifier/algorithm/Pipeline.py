@@ -42,8 +42,8 @@ class Pipeline:
 
     def prepare_pruner(self):
         self.pruner_intact = Pruner(self.preprocessor, self.parameters)
-        pruned = self.pruner_intact[0:self.parameters['characters']]
-        self.pruner = pruned.apply_ratio(self.parameters['x_y_ratio'])
+        pruner_sorted = self.pruner_intact.sort(self.parameters['best'])
+        self.pruner = pruner_sorted[:self.parameters['characters']]
 
     def prepare_evaluator(self):
         self.evaluator = Evaluator(self.sequencer, self.pruner, self.parameters)

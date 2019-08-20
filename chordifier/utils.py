@@ -41,3 +41,11 @@ def walk(start, directions, steps_in_each_direction):
 def axial_to_cartesian(vector):
     cartesian = b.axial_to_cartesian(vector[0], vector[1], 1, "flattop")
     return np.array(cartesian)
+
+
+def normalize_and_weight(scores, weights):
+    absolute = np.abs(scores)
+    maximum = np.max(absolute, axis=-1)
+    maximum[maximum == 0] = 1
+    normalized = scores / maximum[..., None]
+    return normalized * weights

@@ -2,90 +2,68 @@ import numpy as np
 from copy import deepcopy
 
 from chordifier.algorithm.Preprocessor import Preprocessor
+from chordifier.utils import normalize_and_weight
 
 
 class Pruner:
     def __init__(self, preprocessor: Preprocessor, parameters):
-        scores = score_chords(preprocessor, parameters)
-        ranks = rank_chords(scores)
+        skew = np.array([parameters['x_y_ratio'], 1])
 
-        self.zones = preprocessor.zones
-        self.chords = preprocessor.chords[ranks]
-        self.positions = preprocessor.positions[ranks]
-        self.origins = preprocessor.origins
-        self.scores = scores[ranks]
+        self.chords = preprocessor.chords
+        self.positions = preprocessor.positions * skew
+        self.origins = preprocessor.origins * skew
+        self.metrics = self.calculate_metrics(parameters)
+        self.scores = score_metrics(self.metrics, parameters)
+
+    def sort(self, ascending=True):
+        summed_scores = np.sum(self.scores, axis=-1)
+        indices_ascending = summed_scores.argsort()
+        indices = indices_ascending if ascending else indices_ascending[::-1]
+
+        return self[indices]
 
     def __getitem__(self, key):
         copy = deepcopy(self)
 
         copy.chords = copy.chords[key]
         copy.positions = copy.positions[key]
+        copy.metrics = copy.metrics[key]
         copy.scores = copy.scores[key]
 
         return copy
 
-    def apply_ratio(self, x_y_ratio):
-        copy = deepcopy(self)
+    def calculate_metrics(self, parameters):
+        offsets = self.positions - self.origins
 
-        copy.positions = copy.positions * x_y_ratio
-        copy.origins = copy.origins * x_y_ratio
-
-        return copy
-
-
-def rank_chords(scores):
-    summed = np.sum(scores, axis=-1)
-    return summed.argsort()
+        return np.array([
+            finger_priorities(self.chords, parameters['priority']),
+            average_offsets(offsets, parameters['stiffness']),
+            deviation_of_offsets(offsets),
+        ]).T
 
 
-def score_chords(preprocessor, parameters):
-    offsets = preprocessor.positions - preprocessor.origins
-
-    scores = np.array([
-        finger_priorities(preprocessor.chords,
-                          parameters['priority']),
-        average_offsets(offsets,
-                        parameters['x_y_ratio'],
-                        parameters['stiffness']),
-        deviation_of_offsets(offsets),
-    ]).T
-
+def score_metrics(metrics, parameters):
     weights = np.array([
         parameters['finger_priorities'],
         parameters['average_offsets'],
         parameters['deviation_of_offsets'],
     ])
 
-    return scores * weights
+    return normalize_and_weight(metrics, weights)
 
 
 def finger_priorities(chords, priority):
-    normalized_chords = np.where(0 < chords, 1, chords)
-    weighted = normalized_chords * priority
-
-    summed = np.sum(weighted, axis=-1)
-    maximum = np.max(summed)
-
-    return summed / maximum
+    pressed_fingers = 0 < chords
+    weighted_fingers = pressed_fingers * priority
+    return np.sum(weighted_fingers, axis=-1)
 
 
-def average_offsets(offsets, x_y_ratio, stiffness):
-    ratio = np.array([x_y_ratio, 1])
-    weighted_offsets = offsets * ratio
-
-    distances = np.linalg.norm(weighted_offsets, axis=-1)
+def average_offsets(offsets, stiffness):
+    distances = np.linalg.norm(offsets, axis=-1)
     weighted_distances = distances * stiffness
-
-    means = np.nanmean(weighted_distances, axis=-1)
-    maximum = np.max(means)
-
-    return means / maximum if maximum != 0 else means
+    return np.nanmean(weighted_distances, axis=-1)
 
 
 def deviation_of_offsets(offsets):
     deviations = np.nanstd(offsets, axis=-2)
-
-    distances = np.linalg.norm(deviations, axis=-1)
-    maximum = np.max(distances)
-
-    return distances / maximum if maximum != 0 else distances
+    return np.linalg.norm(deviations, axis=-1)
