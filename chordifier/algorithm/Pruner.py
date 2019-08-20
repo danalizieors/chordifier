@@ -14,10 +14,10 @@ class Pruner:
         self.origins = preprocessor.origins * skew
         self.metrics = self.calculate_metrics(parameters)
         self.scores = score_metrics(self.metrics, parameters)
+        self.totals = np.sum(self.scores, axis=-1)
 
     def sort(self, ascending=True):
-        summed_scores = np.sum(self.scores, axis=-1)
-        indices_ascending = summed_scores.argsort()
+        indices_ascending = self.totals.argsort()
         indices = indices_ascending if ascending else indices_ascending[::-1]
 
         return self[indices]
@@ -29,6 +29,7 @@ class Pruner:
         copy.positions = copy.positions[key]
         copy.metrics = copy.metrics[key]
         copy.scores = copy.scores[key]
+        copy.totals = copy.totals[key]
 
         return copy
 

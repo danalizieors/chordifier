@@ -43,9 +43,9 @@ def axial_to_cartesian(vector):
     return np.array(cartesian)
 
 
-def normalize_and_weight(scores, weights):
-    absolute = np.abs(scores)
-    maximum = np.max(absolute, axis=-1)
+def normalize_and_weight(metrics, weights):
+    absolute = np.abs(metrics)
+    maximum = np.max(absolute, axis=-2)
     maximum[maximum == 0] = 1
-    normalized = scores / maximum[..., None]
+    normalized = metrics / maximum
     return normalized * weights
