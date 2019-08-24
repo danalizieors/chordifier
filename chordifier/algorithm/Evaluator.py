@@ -2,83 +2,93 @@ import numpy as np
 
 from chordifier.algorithm.Pruner import Pruner
 from chordifier.algorithm.Sequencer import Sequencer
+from chordifier.utils import normalize_and_weight
 
 
 class Evaluator:
     def __init__(self, sequencer: Sequencer, pruner: Pruner, parameters):
         self.sequencer = sequencer
         self.pruner = pruner
-        self.parameters = parameters
-        self.origin_chords = expand_origins(np.repeat(1, 10), sequencer)
-        self.origin_positions = expand_origins(self.pruner.origins, sequencer)
+        self.origin_chords = repeat_origins(np.repeat(1, 10), sequencer)
+        self.origin_positions = repeat_origins(self.pruner.origins, sequencer)
+        self.stiffness = parameters['stiffness']
+        self.weights = get_weights(parameters)
+
+        self.pruner_permuted = None
+        self.last_indices = None
+        self.chords = None
+        self.positions = None
+        self.metrics = None
+        self.scores = None
+        self.totals = None
+        self.occurrence_weighted = None
 
     def evaluate(self, permutation):
-        chords, positions = self.generate_chord_position_sequences(permutation)
+        self.prepare(permutation)
+        return self.process(),
 
-        scores = np.array([
-            self.distances_travelled(chords, positions),
-            self.chord_difficulties(chords),
-        ]).T
+    def prepare(self, permutation):
+        self.pruner_permuted = self.pruner[permutation]
+        self.last_indices = self.sequencer.indices[::, -1]
+        self.chords = self.generate_sequences(self.pruner_permuted.chords,
+                                              self.origin_chords)
+        self.positions = self.generate_sequences(self.pruner_permuted.positions,
+                                                 self.origin_positions)
 
-        weights = np.array([
-            self.parameters['distances_travelled'],
-            self.parameters['chord_difficulties'],
-        ])
-
-        weighted_scores = scores * weights
-        summed = np.sum(weighted_scores, axis=-1)
-
-        with_occurrences = summed * self.sequencer.occurrences
-        total = np.sum(with_occurrences)
-
-        return total,
-
-    def generate_chord_position_sequences(self, permutation):
-        chords = self.generate_sequences(permutation,
-                                         self.pruner.chords,
-                                         self.origin_chords)
-        positions = self.generate_sequences(permutation,
-                                            self.pruner.positions,
-                                            self.origin_positions)
-        return chords, positions
-
-    def generate_sequences(self, permutation, chords, origins):
-        permuted = chords[permutation]
-        sequences = permuted[self.sequencer.indices]
-
+    def generate_sequences(self, chords, origins):
+        sequences = chords[self.sequencer.indices]
         target_chords = sequences[:, [-1]]
         to_concatenate = [origins, target_chords, sequences]
+
         return np.concatenate(to_concatenate, axis=1)
 
-    def distances_travelled(self, chords, positions):
-        source_positions = determine_source_positions(chords, positions)
-        target_positions = positions[:, -1]
+    def process(self):
+        self.metrics = self.calculate_metrics()
+        previous_scores = self.pruner_permuted.scores[self.last_indices]
+        new_scores = normalize_and_weight(self.metrics, self.weights)
+        self.scores = np.concatenate([previous_scores, new_scores], axis=1)
+
+        self.totals = np.sum(self.scores, axis=-1)
+        self.occurrence_weighted = self.totals * self.sequencer.occurrences
+        total = np.sum(self.occurrence_weighted)
+
+        return total
+
+    def calculate_metrics(self):
+        return np.array([
+            self.maximum_distances_travelled(),
+            self.chord_transition_difficulties(),
+        ]).T
+
+    def maximum_distances_travelled(self):
+        target_chords = self.chords[:, -1]
+        target_pressed = 0 < target_chords
+
+        source_positions = determine_source_positions(self.chords,
+                                                      self.positions)
+        target_positions = self.positions[:, -1]
         offsets = target_positions - source_positions
 
-        distances = np.linalg.norm(offsets, axis=-1)
-        weighted_distances = distances * self.parameters['stiffness']
+        distances = np.linalg.norm(offsets, axis=-1) * target_pressed
+        weighted_distances = distances * self.stiffness
 
-        maximums = np.nanmax(weighted_distances, axis=-1)
+        return np.nanmax(weighted_distances, axis=-1)
 
-        return maximums
-
-    def chord_difficulties(self, chords):
-        source_chords = chords[:, -2]
-        target_chords = chords[:, -1]
+    def chord_transition_difficulties(self):
+        source_chords = self.chords[:, -2]
+        target_chords = self.chords[:, -1]
 
         changed = source_chords != target_chords
         target_pressed = 0 < target_chords
         moved = changed * target_pressed
 
-        moved_weighted = moved * self.parameters['stiffness']
+        moved_weighted = moved * self.stiffness
 
-        difficulties = np.sum(moved_weighted, axis=-1)
-
-        return difficulties
+        return np.sum(moved_weighted, axis=-1)
 
     def retrieve_mapping(self, permutation):
-        permuted_chords = self.pruner.chords[permutation]
-        characters_chords = zip(self.sequencer.uniques, permuted_chords)
+        pruner_permuted = self.pruner[permutation]
+        characters_chords = zip(self.sequencer.uniques, pruner_permuted.chords)
 
         return {character: chord for character, chord in characters_chords}
 
@@ -99,6 +109,13 @@ def determine_source_positions(chords, positions):
     return pressed_positions[sample_indices, sample_indices]
 
 
-def expand_origins(origins, sequencer):
+def repeat_origins(origins, sequencer):
     samples = sequencer.indices.shape[0]
     return np.repeat([[origins]], samples, axis=0)
+
+
+def get_weights(parameters):
+    return np.array([
+        parameters['distances_travelled'],
+        parameters['chord_difficulties'],
+    ])
