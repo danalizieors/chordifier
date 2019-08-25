@@ -15,8 +15,12 @@ class Optimizer:
         self.stats = self.setup_stats()
 
     def setup_toolbox(self):
-        creator.create("FitnessMin", base.Fitness, weights=(-1.0,))
-        creator.create("Individual", list, fitness=creator.FitnessMin)
+        if self.parameters["best"]:
+            creator.create("FitnessMin", base.Fitness, weights=(-1.0,))
+            creator.create("Individual", list, fitness=creator.FitnessMin)
+        else:
+            creator.create("FitnessMax", base.Fitness, weights=(1.0,))
+            creator.create("Individual", list, fitness=creator.FitnessMax)
 
         characters = self.parameters['characters']
 
