@@ -12,7 +12,7 @@ class Optimizer:
 
         self.toolbox = self.setup_toolbox()
         self.winner = tools.HallOfFame(1)
-        self.stats = self.setup_stats()
+        self.logs = None
 
     def setup_toolbox(self):
         if self.parameters["best"]:
@@ -42,26 +42,26 @@ class Optimizer:
 
         return toolbox
 
-    @staticmethod
-    def setup_stats():
-        stats = tools.Statistics(lambda individual: individual.fitness.values)
-
-        stats.register("average", np.mean)
-        stats.register("standard", np.std)
-        stats.register("minimum", np.min)
-        stats.register("maximum", np.max)
-
-        return stats
-
     def optimize(self):
         population = self.toolbox.population(self.parameters['population_size'])
-        algorithms.eaSimple(population,
-                            self.toolbox,
-                            self.parameters['mate_probability'],
-                            self.parameters['mutate_probability'],
-                            self.parameters['generations'],
-                            self.stats,
-                            self.winner)
+        self.logs = algorithms.eaSimple(population,
+                                        self.toolbox,
+                                        self.parameters['mate_probability'],
+                                        self.parameters['mutate_probability'],
+                                        self.parameters['generations'],
+                                        setup_stats(),
+                                        self.winner)
 
         permutation = self.winner.items[0]
         return self.evaluator.retrieve_mapping(permutation)
+
+
+def setup_stats():
+    stats = tools.Statistics(lambda individual: individual.fitness.values)
+
+    stats.register("average", np.mean)
+    stats.register("deviation", np.std)
+    stats.register("minimum", np.min)
+    stats.register("maximum", np.max)
+
+    return stats
