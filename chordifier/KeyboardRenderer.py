@@ -1,6 +1,12 @@
 import numpy as np
+from bokeh.io import output_notebook
+from bokeh.io import show
+from bokeh.plotting import figure
+from bokeh.util.hex import axial_to_cartesian
 
 from chordifier.Models import Keyboard
+
+output_notebook()
 
 PALETTE = [
     '#c66900',
@@ -17,13 +23,30 @@ PALETTE = [
 
 
 class KeyboardRenderer:
-    def __init__(self, keyboard: Keyboard):
+    def __init__(self, keyboard: Keyboard, title=None):
         keys = aggregate_keys(keyboard.zones)
         self.qs = keys[:, 0]
         self.rs = keys[:, 1]
         self.colors = match_colors(keyboard.zones)
         self.indices = extract_indices(keyboard.zones)
         self.positions = extract_positions(keyboard.zones)
+
+        self.plot = make_plot(title)
+        self.draw()
+
+    def present(self):
+        show(self.plot)
+
+    def draw(self):
+        self.plot.hex_tile(self.qs, self.rs,
+                           fill_color=self.colors, alpha=0.5,
+                           line_color="white",
+                           orientation="flattop")
+
+        x, y = axial_to_cartesian(self.qs, self.rs, 1, "flattop")
+
+        self.plot.text(x, y, text=self.indices,
+                       text_baseline="middle", text_align="center")
 
 
 def aggregate_keys(zones):
@@ -42,3 +65,11 @@ def extract_indices(zones):
 
 def extract_positions(zones):
     return [key for zone in zones for key in zone.keys]
+
+
+def make_plot(title):
+    plot = figure(title=title, tools="pan,wheel_zoom,reset",
+                  height=600, sizing_mode='stretch_width', match_aspect=True)
+    plot.grid.visible = False
+
+    return plot
